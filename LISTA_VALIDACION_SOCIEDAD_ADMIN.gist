@@ -1,0 +1,38 @@
+function main(workbook: ExcelScript.Workbook) {
+    // Define la hoja de trabajo donde se aplicará la validación
+    const sheet = workbook.getActiveWorksheet();
+    // Data validation error alert changed on range D:D on selectedSheet
+    sheet.getRange("O:O").getDataValidation().setPrompt({ showPrompt: true, message: "", title: "" });
+    // Data validation error alert changed on range E:E on selectedSheet
+    sheet.getRange("O:O").getDataValidation().setErrorAlert({ showAlert: true, style: ExcelScript.DataValidationAlertStyle.stop, message: "", title: "" });
+    // Data validation ignoreblanks changed on range E:E on selectedSheet
+    sheet.getRange("O:O").getDataValidation().setIgnoreBlanks(true);
+    // Definir el rango de celdas desde D11 hasta D1000
+    const startRow = 11;
+    const endRow = 1000;
+    const columnDRange = sheet.getRange(`O${startRow}:O${endRow}`);
+
+
+
+    // Iterar sobre cada celda en la columna D para aplicar la validación de datos
+    for (let i = 0; i < endRow - startRow + 1; i++) {
+        const row = startRow + i;
+        const cellC = `N${row}`; // Valor en la columna C de la fila actual
+        const cellD = sheet.getRange(`O${row}`);
+
+        // Definir la fórmula INDIRECTO dinámica basada en la referencia a la columna C de la misma fila
+        const indirectFormula = `=INDIRECT(${cellC})`;
+
+        // Aplicar la validación de datos a la celda en la columna D
+
+        const dataValidation = cellD.getDataValidation();
+        const validationCriteria: ExcelScript.ListDataValidation = {
+            inCellDropDown: true,
+            source: indirectFormula
+        };
+        const validationRule: ExcelScript.DataValidationRule = {
+            list: validationCriteria
+        };
+        dataValidation.setRule(validationRule);
+    }
+}
